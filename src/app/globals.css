@@ -24,3 +24,472 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* =========================================================
+   🌙 METROFLOW NIGHT SKY MODE
+   ========================================================= */
+
+.theme-toggle {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 11px 16px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+
+  background: rgba(23, 32, 43, 0.92);
+  color: #f8f4ea;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+
+  backdrop-filter: blur(14px);
+
+  transition:
+    transform 0.25s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 14px 35px rgba(0,0,0,0.35),
+    0 0 20px rgba(255,255,255,0.08);
+}
+
+.theme-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+
+/* =========================================================
+   NIGHT MODE
+   ========================================================= */
+
+body.night-mode {
+  background:
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(78, 96, 150, 0.20),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(96, 75, 130, 0.16),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #070b16 0%,
+      #0b1020 45%,
+      #10172a 100%
+    );
+
+  color: #eef2ff;
+
+  transition:
+    background 0.6s ease,
+    color 0.4s ease;
+}
+
+
+/* =========================================================
+   STAR FIELD
+   ========================================================= */
+
+body.night-mode::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px);
+
+  background-size:
+    140px 140px,
+    210px 210px,
+    310px 310px;
+
+  background-position:
+    10px 20px,
+    80px 100px,
+    150px 40px;
+
+  opacity: 0.45;
+
+  animation: starsDrift 35s linear infinite;
+}
+
+@keyframes starsDrift {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(40px);
+  }
+}
+
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
+
+body.night-mode main {
+  background: transparent !important;
+}
+
+
+/* =========================================================
+   HERO / TOP SECTION
+   ========================================================= */
+
+body.night-mode .hero,
+body.night-mode .hero-section {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 12, 25, 0.88),
+      rgba(11, 16, 32, 0.72)
+    ) !important;
+
+  color: #f5f7ff !important;
+}
+
+
+/* =========================================================
+   NAV / BRAND
+   ========================================================= */
+
+body.night-mode .brand,
+body.night-mode .logo,
+body.night-mode h1,
+body.night-mode h2,
+body.night-mode h3 {
+  color: #f7f4ea !important;
+}
+
+body.night-mode p,
+body.night-mode .subtitle {
+  color: #aeb8d0 !important;
+}
+
+
+/* =========================================================
+   PLANNER CARD
+   ========================================================= */
+
+body.night-mode .planner,
+body.night-mode .planner-card {
+  background:
+    linear-gradient(
+      145deg,
+      #182238,
+      #10182b
+    ) !important;
+
+  border-color: rgba(255,255,255,0.09) !important;
+
+  box-shadow:
+    0 25px 70px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+body.night-mode input,
+body.night-mode select {
+  background: #0d1425 !important;
+  color: #f4f6ff !important;
+
+  border-color: rgba(255,255,255,0.12) !important;
+
+  box-shadow:
+    inset 0 1px 3px rgba(0,0,0,0.35);
+}
+
+body.night-mode input::placeholder {
+  color: #68738c !important;
+}
+
+body.night-mode input:focus,
+body.night-mode select:focus {
+  border-color: #657eff !important;
+
+  box-shadow:
+    0 0 0 3px rgba(101,126,255,0.12);
+}
+
+
+/* =========================================================
+   ROUTE CARDS
+   ========================================================= */
+
+body.night-mode .route-card,
+body.night-mode .comparison-card,
+body.night-mode .result-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25,35,58,0.96),
+      rgba(15,23,40,0.96)
+    ) !important;
+
+  border-color: rgba(255,255,255,0.08) !important;
+
+  color: #f2f4ff !important;
+
+  box-shadow:
+    0 20px 55px rgba(0,0,0,0.32);
+}
+
+body.night-mode .route-card:hover,
+body.night-mode .comparison-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 25px 65px rgba(0,0,0,0.42),
+    0 0 30px rgba(91,116,255,0.07);
+}
+
+
+/* =========================================================
+   SMALL LABELS / METRICS
+   ========================================================= */
+
+body.night-mode .metric,
+body.night-mode .stat,
+body.night-mode .label {
+  color: #9da8c1 !important;
+}
+
+body.night-mode .metric strong,
+body.night-mode .stat strong {
+  color: #f4f6ff !important;
+}
+
+
+/* =========================================================
+   CROWD BAR
+   ========================================================= */
+
+body.night-mode .crowd-bar {
+  background: #242d42 !important;
+}
+
+
+/* =========================================================
+   METRO MAP
+   ========================================================= */
+
+body.night-mode .metro-map,
+body.night-mode .route-map {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12,18,32,0.75),
+      rgba(18,25,44,0.88)
+    ) !important;
+
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+
+/* =========================================================
+   STATION LABELS
+   ========================================================= */
+
+body.night-mode .station-name {
+  color: #e8ecf8 !important;
+}
+
+body.night-mode .station-time,
+body.night-mode .station-meta {
+  color: #8995ad !important;
+}
+
+
+/* =========================================================
+   DISCLAIMER
+   ========================================================= */
+
+body.night-mode .disclaimer {
+  background: rgba(255,255,255,0.035) !important;
+  color: #929db5 !important;
+
+  border-color: rgba(255,255,255,0.07) !important;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+body.night-mode footer {
+  background: #070b15 !important;
+  color: #7e899f !important;
+
+  border-top-color: rgba(255,255,255,0.06) !important;
+}
+
+
+/* =========================================================
+   NIGHT MODE BUTTON
+   ========================================================= */
+
+body.night-mode .theme-toggle {
+  background:
+    linear-gradient(
+      135deg,
+      #f3eee1,
+      #ddd5c4
+    );
+
+  color: #121826;
+
+  border-color: rgba(255,255,255,0.4);
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,0.45),
+    0 0 25px rgba(255,235,170,0.12);
+}
+
+body.night-mode .theme-icon {
+  transform: rotate(180deg);
+}
+
+
+/* =========================================================
+   TRAIN — KEEP IT ALIVE 🚇
+   ========================================================= */
+
+body.night-mode .train-scene,
+body.night-mode .train-track {
+  background: transparent !important;
+}
+
+
+/* Train gets a subtle night glow */
+body.night-mode .train {
+  filter:
+    drop-shadow(0 0 12px rgba(255,255,255,0.12))
+    drop-shadow(0 6px 15px rgba(0,0,0,0.45));
+}
+
+
+/* =========================================================
+   SMOOTH THEME TRANSITION
+   ========================================================= */
+
+body,
+main,
+section,
+article,
+div,
+input,
+select,
+button,
+footer {
+  transition:
+    background 0.45s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+  .theme-toggle {
+    right: 15px;
+    bottom: 15px;
+
+    padding: 10px 13px;
+
+    font-size: 12px;
+  }
+}
+
+.time-picker {
+  width: 100%;
+  height: 49px;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 0 12px;
+
+  border: 1px solid #343F4B;
+  background: #202B38;
+  border-radius: 13px;
+
+  color: white;
+}
+
+.time-picker select {
+  border: 0;
+  outline: none;
+
+  background: transparent;
+  color: white;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  appearance: none;
+  padding: 4px;
+}
+
+.time-picker select option {
+  background: #202B38;
+  color: white;
+}
+
+.time-picker span {
+  color: #8D98A5;
+  font-weight: 700;
+}
+.metro-page:not(.night-mode) .time-picker {
+  background: #202B38 !important;
+  border-color: #343F4B !important;
+  color: #FFFFFF !important;
+}
+
+.metro-page:not(.night-mode) .time-picker select {
+  background: #202B38 !important;
+  color: #FFFFFF !important;
+}
+
+.metro-page:not(.night-mode) .time-picker select option {
+  background: #202B38 !important;
+  color: #FFFFFF !important;
+}
