@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const API_URL = "https://metroflow-backend-53w8.onrender.com";
+
 type StationCrowd = {
   station_id: string;
   station_name: string;
@@ -410,7 +412,7 @@ export default function Home() {
     async function loadStations() {
       try {
         const response = await fetch(
-          "https://metroflow-backend-53w8.onrender.com/stations"
+          `${API_URL}/stations`
         );
 
         if (!response.ok) {
@@ -480,9 +482,11 @@ function formatTime12Hour(time: string): string {
 
  async function planJourney() {
 
+  // Prevent duplicate requests while a search is already running.
+  if (loading) return;
+
   setLoading(true);
   setError("");
-  setResult(null);
 
   try {
 
@@ -512,7 +516,7 @@ function formatTime12Hour(time: string): string {
     // Existing API call starts here
 
       const url =
-        `https://metroflow-backend-53w8.onrender.com/plan` +
+        `${API_URL}/plan` +
         `?source=${encodeURIComponent(source)}` +
         `&destination=${encodeURIComponent(destination)}` +
         `&departure_time=${encodeURIComponent(
