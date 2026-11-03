@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { STATIONS } from "./stations";
 
 type StationCrowd = {
   station_id: string;
@@ -376,9 +377,6 @@ export default function Home() {
   const [destination, setDestination] =
     useState("Rajiv Chowk");
 
-  const [stations, setStations] =
-    useState<string[]>([]);
-
   const [sourceSuggestions, setSourceSuggestions] =
     useState<string[]>([]);
 
@@ -406,25 +404,15 @@ export default function Home() {
   const [nightMode, setNightMode] =
     useState(false);
 
+  // Wake the Render API as soon as the page opens, instead of
+  // making the user's first journey search pay the cold-start delay.
   useEffect(() => {
-    async function loadStations() {
-      try {
-        const response = await fetch(
-          "https://metroflow-backend-53w8.onrender.com/stations"
-        );
-
-        if (!response.ok) {
-          throw new Error("Could not load stations");
-        }
-
-        const data = await response.json();
-        setStations(data.stations || []);
-      } catch (error) {
-        console.error("Station loading error:", error);
-      }
-    }
-
-    loadStations();
+    fetch("https://metroflow-backend-53w8.onrender.com/health", {
+      method: "GET",
+      cache: "no-store",
+    }).catch((error) => {
+      console.warn("Backend warm-up request failed:", error);
+    });
   }, []);
 
   useEffect(() => {
@@ -453,11 +441,11 @@ export default function Home() {
       return [];
     }
 
-    const startsWith = stations.filter((station) =>
+    const startsWith = STATIONS.filter((station) =>
       station.toLowerCase().startsWith(query)
     );
 
-    const contains = stations.filter(
+    const contains = STATIONS.filter(
       (station) =>
         !station.toLowerCase().startsWith(query) &&
         station.toLowerCase().includes(query)
