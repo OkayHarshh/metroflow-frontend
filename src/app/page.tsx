@@ -112,6 +112,39 @@ function getBadge(type: string) {
 }
 
 
+// Community-reported station leads supplied for MetroFlow.
+// This list is not presented as a DMRC-confirmed paid-area register.
+const COMMUNITY_TOILET_STATIONS = [
+  "Central Secretariat", "Chawri Bazar", "Dabri Mod", "Delhi Gate",
+  "Dwarka", "Hauz Khas", "Janpath", "Kalkaji Mandir",
+  "Kashmiri Gate", "Kirti Nagar", "Lajpat Nagar", "Lok Kalyan Marg",
+  "Mandi House", "Mayur Vihar Interchange", "Munirka",
+  "New Delhi Metro Station (Airport Line)", "Noida Electronic City",
+  "Noida Sector 52", "Okhla Bird Sanctuary", "Palam", "Rajiv Chowk",
+  "RK Puram", "Shaheed Sthal", "Vasant Vihar",
+];
+
+const DMRC_PAID_AREA_VERIFIED = new Set([
+  "chawri bazar", "hauz khas", "lajpat nagar", "noida electronic city",
+]);
+
+function stationKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function hasCommunityToiletReport(value: string) {
+  const key = stationKey(value);
+  return COMMUNITY_TOILET_STATIONS.some((name) => {
+    const candidate = stationKey(name);
+    if (key === candidate) return true;
+    const aliases: Record<string, string> = {
+      kashmeregate: "kashmirigate", kashmirigate: "kashmeregate",
+      noidasec52: "noidasector52", noidasector52: "noidasec52",
+    };
+    return aliases[key] === candidate || aliases[candidate] === key;
+  });
+}
+
 /* ============================================================
    CARTOON TRAIN
 ============================================================ */
@@ -305,6 +338,23 @@ function MetroRoute({ route }: { route: Route }) {
                     {station.station_name}
                   </span>
 
+                  {hasCommunityToiletReport(station.station_name) && (
+                    <span
+                      className={`toilet-stop-badge ${
+                        DMRC_PAID_AREA_VERIFIED.has(station.station_name.toLowerCase())
+                          ? "toilet-badge-verified"
+                          : "toilet-badge-community"
+                      }`}
+                      title={
+                        DMRC_PAID_AREA_VERIFIED.has(station.station_name.toLowerCase())
+                          ? "Paid-area toilet listed on DMRC station page"
+                          : "Community-reported toilet; paid-area location not DMRC-verified"
+                      }
+                    >
+                      🚻 {DMRC_PAID_AREA_VERIFIED.has(station.station_name.toLowerCase()) ? "DMRC" : "REPORTED"}
+                    </span>
+                  )}
+
                   {first && (
                     <small>
                       START
@@ -403,6 +453,18 @@ export default function Home() {
 
   const [nightMode, setNightMode] =
     useState(false);
+
+  const [toiletFinderOpen, setToiletFinderOpen] = useState(false);
+  const [toiletSearch, setToiletSearch] = useState("");
+
+  useEffect(() => {
+    if (!toiletFinderOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setToiletFinderOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [toiletFinderOpen]);
 
   // Wake the Render API as soon as the page opens, instead of
   // making the user's first journey search pay the cold-start delay.
@@ -1840,6 +1902,67 @@ function formatTime12Hour(time: string): string {
           color: #B5A18B;
         }
 
+        /* TOILET FINDER — integrated utility, not a floating CTA */
+        .toilet-nav-button {
+          display:inline-flex; align-items:center; gap:8px; min-height:38px;
+          padding:0 13px; border:1px solid #E4DED2; border-radius:999px;
+          background:rgba(255,255,255,.82); color:#34404A; cursor:pointer;
+          font-size:11px; font-weight:750; transition:background .18s,border-color .18s,transform .18s;
+        }
+        .toilet-nav-button:hover { background:#fff; border-color:#CFC5B5; transform:translateY(-1px); }
+        .toilet-nav-icon { font-size:14px; line-height:1; }
+        .toilet-nav-count { color:#8B673B; font-size:9px; font-weight:850; }
+        .toilet-modal-backdrop {
+          position:fixed; inset:0; z-index:1300; display:flex; justify-content:flex-end;
+          background:rgba(17,24,31,.24); backdrop-filter:blur(2px);
+        }
+        .toilet-modal {
+          width:min(430px, calc(100vw - 18px)); height:100%; max-height:100%;
+          overflow:hidden; display:flex; flex-direction:column;
+          background:#FFFDFA; color:#17202B; border-left:1px solid #E6E0D5;
+          border-radius:18px 0 0 18px; box-shadow:-18px 0 55px rgba(0,0,0,.16);
+          animation:toilet-drawer-in .22s ease-out;
+        }
+        @keyframes toilet-drawer-in { from { transform:translateX(18px); opacity:.75; } to { transform:translateX(0); opacity:1; } }
+        .toilet-modal-head { padding:25px 24px 17px; display:flex; justify-content:space-between; gap:14px; align-items:flex-start; border-bottom:1px solid #EEE9E0; }
+        .toilet-modal-kicker { color:#A47D4E; font-size:9px; letter-spacing:1.35px; font-weight:900; }
+        .toilet-modal-title { margin:6px 0 5px; font-size:25px; letter-spacing:-.9px; }
+        .toilet-modal-sub { color:#7D858C; font-size:11px; line-height:1.55; max-width:285px; }
+        .toilet-close { flex:0 0 34px; border:1px solid #E9E3D9; background:#F7F4EE; color:#35404A; width:34px; height:34px; border-radius:50%; font-size:19px; cursor:pointer; }
+        .toilet-search-wrap { padding:17px 24px 11px; }
+        .toilet-search { width:100%; border:1px solid #DDD7CC; border-radius:11px; padding:12px 14px; outline:none; background:#fff; color:#17202B; font-size:12px; }
+        .toilet-search:focus { border-color:#A47D4E; box-shadow:0 0 0 3px rgba(164,125,78,.10); }
+        .toilet-list-meta { padding:3px 24px 12px; display:flex; justify-content:space-between; gap:10px; color:#8A9197; font-size:10px; font-weight:700; }
+        .toilet-list { overflow-y:auto; padding:0 18px 18px; }
+        .toilet-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 8px; border-bottom:1px solid #F0ECE5; }
+        .toilet-row-name { font-size:12px; font-weight:750; color:#26313A; }
+        .toilet-row-status { flex:0 0 auto; font-size:8px; white-space:nowrap; border-radius:100px; padding:5px 8px; font-weight:850; letter-spacing:.25px; }
+        .toilet-status-verified { color:#26734F; background:#E8F4EC; }
+        .toilet-status-reported { color:#8B673B; background:#F6EFE3; }
+        .toilet-empty { padding:28px 12px; text-align:center; color:#858D93; font-size:12px; }
+        .toilet-modal-foot { border-top:1px solid #EEE9E0; padding:14px 24px 18px; color:#8A9197; font-size:9px; line-height:1.55; background:#FBF9F5; }
+        .toilet-stop-badge { display:inline-flex; align-items:center; gap:3px; border-radius:100px; padding:3px 6px; font-size:7px; font-weight:900; letter-spacing:.3px; white-space:nowrap; vertical-align:middle; margin-left:5px; }
+        .toilet-badge-verified { color:#26734F; background:#E8F4EC; }
+        .toilet-badge-community { color:#8B673B; background:#F6EFE3; }
+        .night-mode .toilet-nav-button { background:#202B37; color:#E7E1D7; border-color:#34404D; }
+        .night-mode .toilet-nav-button:hover { background:#293744; }
+        .night-mode .toilet-modal { background:#1C2732; color:#F0ECE5; border-color:#34404D; }
+        .night-mode .toilet-modal-head, .night-mode .toilet-modal-foot { border-color:#34404D; }
+        .night-mode .toilet-modal-title, .night-mode .toilet-row-name { color:#F0ECE5; }
+        .night-mode .toilet-search { background:#121B24; color:#F0ECE5; border-color:#3A4652; }
+        .night-mode .toilet-row { border-color:#303C48; }
+        .night-mode .toilet-close { background:#2B3743; color:#F0ECE5; border-color:#3A4652; }
+        .night-mode .toilet-modal-foot { background:#18232D; }
+        @media (max-width:650px) {
+          .toilet-nav-button { min-height:35px; padding:0 10px; gap:6px; }
+          .toilet-nav-count { display:none; }
+          .toilet-modal { width:min(430px, 100vw); border-radius:18px 0 0 18px; }
+          .toilet-modal-head { padding:22px 20px 15px; }
+          .toilet-search-wrap { padding:15px 20px 10px; }
+          .toilet-list-meta { padding-left:20px; padding-right:20px; }
+          .toilet-modal-foot { padding-left:20px; padding-right:20px; }
+        }
+
         /* ================================================
            RESPONSIVE
         ================================================ */
@@ -1941,6 +2064,17 @@ function formatTime12Hour(time: string): string {
           </div>
 
           <button
+            className="toilet-nav-button"
+            type="button"
+            onClick={() => { setToiletFinderOpen(true); setToiletSearch(""); }}
+            aria-label="Open station toilet finder"
+          >
+            <span className="toilet-nav-icon">🚻</span>
+            <span>Station toilets</span>
+            <span className="toilet-nav-count">24</span>
+          </button>
+
+          <button
             className="theme-toggle"
             onClick={toggleTheme}
             aria-label={nightMode ? "Switch to day mode" : "Switch to night mode"}
@@ -1966,12 +2100,6 @@ function formatTime12Hour(time: string): string {
           <span className="eyebrow">
             YOUR DAILY METRO COMPANION
           </span>
-
-          <h1>
-            Find your way.
-            <br />
-            <em>Beat the crowd.</em>
-          </h1>
 
           <p className="hero-text">
             MetroFlow compares routes across travel time,
@@ -2697,6 +2825,55 @@ function formatTime12Hour(time: string): string {
 
       )}
 
+
+      {toiletFinderOpen && (
+        <div
+          className="toilet-modal-backdrop"
+          onMouseDown={(event) => { if (event.target === event.currentTarget) setToiletFinderOpen(false); }}
+        >
+          <section className="toilet-modal" role="dialog" aria-modal="true" aria-labelledby="toilet-modal-title">
+            <div className="toilet-modal-head">
+              <div>
+                <div className="toilet-modal-kicker">METROFLOW FACILITIES</div>
+                <h2 className="toilet-modal-title" id="toilet-modal-title">Find a toilet</h2>
+                <div className="toilet-modal-sub">Find a station with a community-reported toilet. Check the label before relying on paid-area access.</div>
+              </div>
+              <button className="toilet-close" type="button" onClick={() => setToiletFinderOpen(false)} aria-label="Close toilet finder">×</button>
+            </div>
+            <div className="toilet-search-wrap">
+              <input
+                className="toilet-search"
+                type="search"
+                value={toiletSearch}
+                onChange={(event) => setToiletSearch(event.target.value)}
+                placeholder="Search station name..."
+                autoFocus
+              />
+            </div>
+            <div className="toilet-list-meta">
+              <span>{COMMUNITY_TOILET_STATIONS.filter((name) => name.toLowerCase().includes(toiletSearch.trim().toLowerCase())).length} stations</span>
+              <span>DMRC-listed + community reports</span>
+            </div>
+            <div className="toilet-list">
+              {COMMUNITY_TOILET_STATIONS.filter((name) => name.toLowerCase().includes(toiletSearch.trim().toLowerCase())).map((name) => {
+                const verified = DMRC_PAID_AREA_VERIFIED.has(name.toLowerCase());
+                return (
+                  <div className="toilet-row" key={name}>
+                    <span className="toilet-row-name">{name}</span>
+                    <span className={`toilet-row-status ${verified ? "toilet-status-verified" : "toilet-status-reported"}`}>
+                      {verified ? "✓ DMRC PAID AREA" : "COMMUNITY REPORTED"}
+                    </span>
+                  </div>
+                );
+              })}
+              {COMMUNITY_TOILET_STATIONS.filter((name) => name.toLowerCase().includes(toiletSearch.trim().toLowerCase())).length === 0 && (
+                <div className="toilet-empty">No matching station found. Try another spelling.</div>
+              )}
+            </div>
+            <div className="toilet-modal-foot">Community-reported entries are not independently confirmed for paid-area access. DMRC labels indicate an explicit paid-concourse listing; current operational status may vary.</div>
+          </section>
+        </div>
+      )}
 
       {/* ======================================================
           FOOTER
