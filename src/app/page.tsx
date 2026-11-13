@@ -442,6 +442,15 @@ export default function Home() {
   const [departureTime, setDepartureTime] =
     useState("18:35");
 
+  // Sync once with the visitor's device clock after hydration.
+  // Manual changes in the time picker are preserved afterwards.
+  useEffect(() => {
+    const now = new Date();
+    setDepartureTime(
+      `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
+    );
+  }, []);
+
   const [result, setResult] =
     useState<PlanResponse | null>(null);
 
@@ -2100,6 +2109,12 @@ function formatTime12Hour(time: string): string {
           <span className="eyebrow">
             YOUR DAILY METRO COMPANION
           </span>
+
+          <h1>
+            Find your way.
+            <br />
+            <em>Beat the crowd.</em>
+          </h1>
 
           <p className="hero-text">
             MetroFlow compares routes across travel time,
